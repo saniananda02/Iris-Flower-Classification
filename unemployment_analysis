@@ -1,0 +1,62 @@
+# Step 1: Upload Dataset
+from google.colab import files
+uploaded = files.upload()
+
+# Step 2: Import Libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Step 3: Load Dataset
+df = pd.read_csv('Unemployment in India.csv')
+df.head()
+
+# Step 4: Understand Data
+print(df.shape)
+print(df.columns)
+df.info()
+
+# Step 5: Data Cleaning
+df.columns = df.columns.str.strip()
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+
+df.rename(columns={
+    'Estimated Unemployment Rate (%)': 'Unemployment_Rate',
+    'Estimated Employed': 'Employed',
+    'Estimated Labour Participation Rate (%)': 'Labour_Participation'
+}, inplace=True)
+
+# Step 6: Missing Values
+df.isnull().sum()
+
+# Step 7: Trend
+plt.figure()
+df.groupby('Date')['Unemployment_Rate'].mean().plot()
+plt.title('Unemployment Rate Over Time in India')
+plt.xlabel('Date')
+plt.ylabel('Unemployment Rate (%)')
+plt.grid()
+plt.show()
+
+# Step 8: State-wise
+state_avg = df.groupby('Region')['Unemployment_Rate'].mean().sort_values()
+
+plt.figure()
+state_avg.plot(kind='bar')
+plt.title('Average Unemployment Rate by State')
+plt.xlabel('State')
+plt.ylabel('Unemployment Rate (%)')
+plt.show()
+
+# Step 9: Urban vs Rural
+area_avg = df.groupby('Area')['Unemployment_Rate'].mean()
+
+plt.figure()
+area_avg.plot(kind='bar')
+plt.title('Urban vs Rural Unemployment')
+plt.ylabel('Unemployment Rate (%)')
+plt.show()
+
+# Step 10: Insights
+print('Highest unemployment state:', state_avg.idxmax())
+print('Lowest unemployment state:', state_avg.idxmin())
+print('\nUrban vs Rural:\n', area_avg)
